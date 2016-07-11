@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Auth buddy</title>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css">
+</head>
+<body ng-app="authModule">
+	<div class="container" ng-controller="UserController as user">
+		<div class="form-group">
+			<label>Email:</label>
+			<input type="text" ng-model="user.email" class="form-control"/>
+		</div>
+		<div class="form-group">
+			<label>Password:</label>
+			<input type="password" ng-model="user.password" class="form-control"/>
+		</div>
+		<div class="form-group">
+			<button class="btn btn-primary" ng-click="user.login()">Login</button>
+			<button type="button" class="btn btn-success" ng-click="user.register()">
+				Register</button>
+				<button class="btn btn-default" ng-click="user.logout()">Logout</button>
+				<button class="btn btn-primary" ng-click="user.GoogleLogin()">Google</button>
+			</div>
+		</div>
+		<script src="app/bower_components/angular/angular.js"></script>
+		<script src="app/bower_components/satellizer/satellizer.js"></script>
+		<script type="text/javascript">
+			var app = angular.module('authModule',['satellizer']);
+
+			app.controller('UserController',['$http','$log','$auth',function($http,$log,$auth){
+				var API_URL = 'http://localhost:8080/';
+				var vm = this;
+				vm.email = '';
+				vm.password = '';
+
+				vm.login = function(){
+					var user = {
+						email : vm.email,
+						password : vm.password
+					}
+					$auth.login(user)
+					.then(function(res) {
+						$log.log(res);
+					})
+					.catch(function(error) {
+						$log.log(error);
+					});
+				}
+
+				vm.register = function(){
+					var user = {
+						email : vm.email,
+						password : vm.password
+					}
+
+					$auth.signup(user)
+					.then(function(response) {
+						$auth.setToken(response);
+						$log.log(response)
+						$log.log('You have successfully created a new account and have been signed-in');
+					})
+					.catch(function(response) {
+						$log.log(response.data.message);
+					});
+				}
+
+				vm.logout = function(){
+					$auth.logout()
+					.then(function() {
+						$log.log('You have been logged out');
+					});
+				}
+
+				vm.GoogleLogin = function(){
+					$auth.authenticate('google')
+					.then(function(response) {
+						$log.log(response)
+					})
+					.catch(function(response) {
+						$log.log(response);
+					});
+				}
+
+
+			}]);
+
+			app.config(['$authProvider',function($authProvider){
+				$authProvider.google({
+					clientId: '1043279793302-n3uembmp8p9bik47bs1a2dmtnut6ar57.apps.googleusercontent.com'
+				});
+			}]);
+
+	/*app.config(['$stateProvider',function($stateProvider){
+		$stateProvider
+			.state('home',{
+				url : '/',
+				controller : 'HomeController',
+				controllerAs : 'home',
+				templateUrl : 'app/templates/home.html'
+				template : '<h1>This is an inline template</h1>'
+			});
+		}]);*/
+	</script>
+</body>
+</html>
