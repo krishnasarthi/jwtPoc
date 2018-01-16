@@ -1,9 +1,9 @@
-﻿var uuid = require('node-uuid');
+﻿const uuid = require('uuid/v1');
 var _ = require('lodash');
 
 /* Return unique sequential UUID for tables */
 var getSeqUUID = function() {
-  return _.replace(uuid.v1(), new RegExp('-', 'g'), '');
+  return _.replace(uuid(), new RegExp('-', 'g'), '');
 };
 
 var sendDbConnectionError = function(err) {
